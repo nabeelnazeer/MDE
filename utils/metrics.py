@@ -1,52 +1,35 @@
 import torch
-import numpy as np
+import torch.nn.functional as F
 
-def compute_depth_metrics(pred, target, mask=None, min_depth=1e-3, max_depth=80):
-    """
-    Compute depth estimation metrics with numerical stability handling
-    pred, target: torch tensors of same shape
-    mask: optional binary mask for valid pixels
-    """
-    # Ensure positive depth values
-    valid_mask = (target > min_depth) & (target < max_depth)
-    if mask is not None:
-        valid_mask = valid_mask & mask
+def compute_depth_metrics(pred, target, min_depth=1e-3, max_depth=80.0, eps=1e-7):
+    """Enhanced depth metrics computation with better numerical stability"""
+    mask = (target > min_depth) & (target < max_depth) & torch.isfinite(target)
+    if not mask.any():
+        return {k: float('inf') for k in ['abs_rel', 'sq_rel', 'rmse', 'rmse_log', 'silog', 'delta1', 'delta2', 'delta3']}
     
-    pred = pred[valid_mask]
-    target = target[valid_mask]
+    pred = torch.clamp(pred[mask], min_depth, max_depth)
+    target = target[mask]
     
-    # Clip predicted depth to valid range
-    pred = torch.clamp(pred, min=min_depth, max=max_depth)
+    thresh = 1.25
     
-    # Compute threshold matrix
-    thresh = torch.max((target / pred), (pred / target))
+    # Relative error metrics (with numerical stability)
+    abs_rel = torch.mean(torch.abs(target - pred) / (target + eps))
+    sq_rel = torch.mean(((target - pred) ** 2) / (target + eps))
     
-    # Accuracy metrics
-    delta1 = (thresh < 1.25).float().mean()
-    delta2 = (thresh < 1.25 ** 2).float().mean()
-    delta3 = (thresh < 1.25 ** 3).float().mean()
+    # RMSE metrics
+    rmse = torch.sqrt(torch.mean((target - pred) ** 2) + eps)
+    rmse_log = torch.sqrt(torch.mean((torch.log(target + eps) - torch.log(pred + eps)) ** 2) + eps)
     
-    # Error metrics with numerical stability
-    rmse = torch.sqrt(((target - pred) ** 2).mean() + 1e-6)  # Add small epsilon
+    # Scale-invariant log error
+    d = torch.log(pred + eps) - torch.log(target + eps)
+    silog = torch.sqrt(torch.mean(d ** 2) - 0.5 * (torch.mean(d) ** 2) + eps)
     
-    # Safe log computation
-    safe_log_pred = torch.log(pred + 1e-6)
-    safe_log_target = torch.log(target + 1e-6)
-    
-    rmse_log = torch.sqrt(((safe_log_target - safe_log_pred) ** 2).mean() + 1e-6)
-    
-    # Absolute relative difference with epsilon
-    abs_diff = torch.abs(target - pred)
-    rel_diff = abs_diff / (target + 1e-6)
-    abs_rel = rel_diff.mean()
-    
-    # Square relative difference with epsilon
-    sq_rel = (((target - pred) ** 2) / (target + 1e-6)).mean()
-    
-    # Scale-invariant logarithmic error
-    d = safe_log_pred - safe_log_target
-    silog = torch.sqrt(torch.mean(d ** 2) - (torch.mean(d) ** 2) + 1e-6) * 100
-    
+    # Threshold accuracies
+    max_ratio = torch.max(pred / (target + eps), target / (pred + eps))
+    delta1 = torch.mean((max_ratio < thresh).float())
+    delta2 = torch.mean((max_ratio < thresh ** 2).float())
+    delta3 = torch.mean((max_ratio < thresh ** 3).float())
+
     return {
         'abs_rel': abs_rel.item(),
         'sq_rel': sq_rel.item(),
