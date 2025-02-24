@@ -67,3 +67,4 @@ profiler/
 # Local configuration
 config/*_local.yaml
 .env*
+mde
