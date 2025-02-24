@@ -1,21 +1,32 @@
 data:
   dataset: "kitti"
-  train_path: "/Users/nabeelnazeer/Documents/Project-s6/Datasets/data_scene_flow/training"
+  base_path: "C:/Users/jesli/Downloads/data_scene_flow"
+  train_path: "C:/Users/jesli/Downloads/data_scene_flow/training"
+  test_path: "C:/Users/jesli/Downloads/data_scene_flow/testing"
   img_height: 256
   img_width: 832
-  max_samples: null  # Remove sample limit to use full dataset
+  max_samples: null  # Ensure this is null to use full dataset
 
 training:
-  batch_size: 8     # Increased for full dataset
-  num_epochs: 30    # Adjusted for full dataset
-  learning_rate: 0.0001
+  batch_size: 4          # Reduced for stability
+  num_epochs: 40
+  learning_rate: 0.0002  # Slightly increased
   weight_decay: 0.0001
-  scheduler_step_size: 10
-  scheduler_gamma: 0.1
+  scheduler_step_size: 5  # More frequent adjustments
+  scheduler_gamma: 0.7    # Less aggressive decay
+  num_workers: 4    # Optimal for most GPUs
+  pin_memory: true  # Important for GPU training
+  cuda: true       # Force CUDA usage
+  min_depth: 0.001          # Minimum valid depth
+  max_depth: 80.0           # Maximum valid depth
+  grad_clip: 1.0            # Add gradient clipping
+  epsilon: 1e-7
 
 model:
   name: "resnet_depth"
   pretrained: true
+  depth_scale: 80.0         # Maximum depth range
+  min_depth: 0.001         # Minimum depth range
 
 logging:
   use_wandb: false  # Add this line to disable wandb
