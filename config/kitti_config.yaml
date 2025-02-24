@@ -3,14 +3,14 @@ data:
   train_path: "/Users/nabeelnazeer/Documents/Project-s6/Datasets/data_scene_flow/training"
   img_height: 256
   img_width: 832
-  max_samples: 50  # 50 stereo pairs = 100 total images
+  max_samples: null  # Remove sample limit to use full dataset
 
 training:
-  batch_size: 5    # Smaller batch size for better training with limited data
-  num_epochs: 100  # More epochs since we have less data
+  batch_size: 8     # Increased for full dataset
+  num_epochs: 30    # Adjusted for full dataset
   learning_rate: 0.0001
   weight_decay: 0.0001
-  scheduler_step_size: 20  # Adjusted for more epochs
+  scheduler_step_size: 10
   scheduler_gamma: 0.1
 
 model:
