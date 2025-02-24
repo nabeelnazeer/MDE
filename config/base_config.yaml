@@ -1,0 +1,26 @@
+
+data:
+  dataset: "nyu_depth_v2"
+  train_path: "data/train"
+  val_path: "data/val"
+  test_path: "data/test"
+  img_height: 480
+  img_width: 640
+
+training:
+  batch_size: 8
+  num_epochs: 50
+  learning_rate: 0.0001
+  weight_decay: 0.0001
+  scheduler_step_size: 15
+  scheduler_gamma: 0.1
+
+model:
+  name: "unet"
+  pretrained: true
+  backbone: "resnet50"
+
+logging:
+  wandb_project: "mono_depth"
+  save_dir: "checkpoints"
+  log_interval: 100

@@ -1,0 +1,23 @@
+data:
+  dataset: "kitti"
+  train_path: "/Users/nabeelnazeer/Documents/Project-s6/Datasets/data_scene_flow/training"
+  img_height: 256
+  img_width: 832
+  max_samples: 50  # 50 stereo pairs = 100 total images
+
+training:
+  batch_size: 5    # Smaller batch size for better training with limited data
+  num_epochs: 100  # More epochs since we have less data
+  learning_rate: 0.0001
+  weight_decay: 0.0001
+  scheduler_step_size: 20  # Adjusted for more epochs
+  scheduler_gamma: 0.1
+
+model:
+  name: "resnet_depth"
+  pretrained: true
+
+logging:
+  use_wandb: false  # Add this line to disable wandb
+  save_dir: "checkpoints"
+  log_interval: 50

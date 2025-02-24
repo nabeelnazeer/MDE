@@ -1,0 +1,69 @@
+# Python basics
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+eggs/
+.eggs/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments - comprehensive coverage
+venv/
+env/
+ENV/
+.env
+.venv
+python_env/
+pythonenv*
+.python-version
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Project specific directories
+checkpoints*/
+wandb*/
+runs/
+results/
+logs/
+
+# Model files
+*.pth
+*.ckpt
+*.pt
+*.h5
+
+# Data
+data/*
+datasets/
+*.png
+*.jpg
+*.jpeg
+*.npy
+*.npz
+*.hdf5
+
+# Jupyter
+.ipynb_checkpoints
+*.ipynb
+
+# Logs and debugging
+*.log
+events.out.tfevents.*
+tb_logs/
+tensorboard/
+profiler/
+
+# Local configuration
+config/*_local.yaml
+.env*
